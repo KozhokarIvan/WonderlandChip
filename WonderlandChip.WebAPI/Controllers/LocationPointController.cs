@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using WonderlandChip.WebAPI.ApiModels.LocationPoint;
+using WonderlandChip.Database.DTO.LocationPoint;
+using WonderlandChip.Database.Repositories.Interfaces;
+using WonderlandChip.WebAPI.Services;
 
 namespace WonderlandChip.WebAPI.Controllers
 {
@@ -8,21 +10,28 @@ namespace WonderlandChip.WebAPI.Controllers
     [ApiController]
     public class LocationPointController : ControllerBase
     {
+        private readonly ILocationRepository _locationRepository;
+
+        private readonly AuthenticationService _authenticationService;
+        public LocationPointController
+            (ILocationRepository locationRepository,
+            AuthenticationService authenticationService)
+        {
+            _locationRepository = locationRepository;
+            _authenticationService = authenticationService;
+        }
         [HttpGet("{pointId}")]
         public async Task<IActionResult> GetLocationPointId(long pointId)
         {
-            if (/*Unauthorized*/false)
+            if (!string.IsNullOrWhiteSpace(Request.Headers.Authorization) &&
+                !await _authenticationService.TryAuthenticate(Request.Headers.Authorization))
                 return Unauthorized();
             if (pointId <= 0)
                 return BadRequest();
-            if (/*not found*/pointId > 10000)
+            LocationPointGetDTO location = await _locationRepository.GetLocationById(pointId);
+            if (location is null)
                 return NotFound();
-            return Ok(new LocationPointGetDTO()
-            {
-                Id = pointId,
-                Latitude = pointId - 1,
-                Longitude = pointId + 1
-            });
+            return Ok(location);
         }
     }
 }

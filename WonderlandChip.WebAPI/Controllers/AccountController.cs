@@ -1,8 +1,9 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using WonderlandChip.WebAPI.ApiModels.Account;
+using WonderlandChip.Database.DTO.Account;
+using WonderlandChip.Database.Repositories.Interfaces;
+using WonderlandChip.WebAPI.Services;
 
 namespace WonderlandChip.WebAPI.Controllers
 {
@@ -10,39 +11,40 @@ namespace WonderlandChip.WebAPI.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
+        private readonly IAccountRepository accountRepository;
+        private readonly AuthenticationService _authenticationService;
+        public AccountController
+            (IAccountRepository accountRepository, 
+            AuthenticationService authenticationService)
+        {
+            this.accountRepository = accountRepository;
+            _authenticationService = authenticationService;
+        }
         [HttpGet("{accountId}")]
         public async Task<IActionResult> GetAccountAsync(int accountId)
         {
-            if (/*wrong auth*/false)
+            if (!string.IsNullOrWhiteSpace(Request.Headers.Authorization) &&
+                !await _authenticationService.TryAuthenticate(Request.Headers.Authorization))
                 return Unauthorized();
             if (accountId <= 0)
                 return BadRequest();
-            if (/*id was not found*/accountId > 10000)
+            AccountGetDTO account = await accountRepository.GetAccountById(accountId);
+            if (account is null)
                 return NotFound();
-            return Ok(new AccountGetDTO
-            {
-                Id = (int)accountId,
-                FirstName = "Thomas",
-                LastName = "Shelby",
-                Email = "tommyshelbyinc@yandex.ru"
-            });
+            return Ok(account);
         }
         [HttpGet("search")]
         public async Task<IActionResult> SearchAccountAsync([FromQuery] AccountSearchDTO request)
         {
-            if (/*Unauthorized*/ false)
+            if (!string.IsNullOrWhiteSpace(Request.Headers.Authorization) &&
+                !await _authenticationService.TryAuthenticate(Request.Headers.Authorization))
                 return Unauthorized();
             if (request is not null && (request.From < 0 || request.Size <= 0))
                 return BadRequest();
-            //TODO sort result by id asc 0,1,2
-            AccountGetDTO response = new AccountGetDTO()
-            {
-                Id = 1,
-                Email = request.Email ?? "tommyshelbyinc@yandex.ru",
-                FirstName = request.FirstName ?? "Thomas",
-                LastName = request.LastName ?? "Shleby"
-            };
-            return Ok(new AccountGetDTO[] { response });
+            List<AccountGetDTO> accounts = await accountRepository.SearchAccounts(request);
+            if (accounts is null)
+                return NotFound();
+            return Ok(accounts);
         }
     }
 }

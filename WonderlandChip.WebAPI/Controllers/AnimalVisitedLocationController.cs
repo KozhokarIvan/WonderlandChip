@@ -1,8 +1,9 @@
-﻿using System.Globalization;
-using System;
-using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using WonderlandChip.WebAPI.ApiModels.AnimalVisitedLocation;
+using WonderlandChip.Database.DTO.AnimalVisitedLocation;
+using WonderlandChip.Database.Repositories.Interfaces;
+using WonderlandChip.WebAPI.Services;
 
 namespace WonderlandChip.WebAPI.Controllers
 {
@@ -10,23 +11,30 @@ namespace WonderlandChip.WebAPI.Controllers
     [ApiController]
     public class AnimalVisitedLocationController : ControllerBase
     {
+        private readonly IVisitedLocationRepository _visitedLocationRepository;
+
+        private readonly AuthenticationService _authenticationService;
+        public AnimalVisitedLocationController
+            (IVisitedLocationRepository visitedLocationRepository,
+            AuthenticationService authenticationService)
+        {
+            _visitedLocationRepository = visitedLocationRepository;
+            _authenticationService = authenticationService;
+        }
         [HttpGet("{animalId}/locations")]
         public async Task<IActionResult> GetVisitedLocationsAsync(long? animalId, [FromQuery] AnimalVisitedLocationSearchDTO request)
         {
-            if (/*Unauthorized*/false)
+            if (!string.IsNullOrWhiteSpace(Request.Headers.Authorization) &&
+                !await _authenticationService.TryAuthenticate(Request.Headers.Authorization))
                 return Unauthorized();
-            if (animalId is null || animalId <= 0 || request is not null && (request.From > 0 || request.Size <= 0) 
-                /*or one of datetimes or both are wrong*/)
+            if (animalId is null || animalId <= 0 || request is not null && 
+                (request.From > 0 || request.Size <= 0))
                 return BadRequest();
-            if (/*NotFound*/animalId is not null && animalId > 10000)
+            request.AnimalId = (long)animalId;
+            List<AnimalVisitedLocationGetDTO> visitedLocations = await _visitedLocationRepository.SearchVisitedLocation(request);
+            if (visitedLocations is null)
                 return NotFound();
-            AnimalVisitedLocationGetDTO response = new AnimalVisitedLocationGetDTO()
-            {
-                Id = 1,
-                DateTimeOfVisitLocationPoint = DateTime.Now,
-                LocationPointId = 1
-            };
-            return Ok(new AnimalVisitedLocationGetDTO[] { response });
+            return Ok(visitedLocations);
         }
     }
 }

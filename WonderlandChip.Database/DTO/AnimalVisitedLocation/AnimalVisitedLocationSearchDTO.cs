@@ -1,4 +1,6 @@
-﻿namespace WonderlandChip.WebAPI.ApiModels.AnimalVisitedLocation
+﻿using System;
+
+namespace WonderlandChip.Database.DTO.AnimalVisitedLocation
 {
     public class AnimalVisitedLocationSearchDTO
     {

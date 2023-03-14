@@ -1,4 +1,4 @@
-﻿namespace WonderlandChip.WebAPI.ApiModels.Account
+﻿namespace WonderlandChip.Database.DTO.Account
 {
     public class AccountSearchDTO
     {

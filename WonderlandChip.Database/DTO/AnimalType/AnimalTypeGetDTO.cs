@@ -1,4 +1,4 @@
-﻿namespace WonderlandChip.WebAPI.ApiModels.AnimalType
+﻿namespace WonderlandChip.Database.DTO.AnimalType
 {
     public class AnimalTypeGetDTO
     {

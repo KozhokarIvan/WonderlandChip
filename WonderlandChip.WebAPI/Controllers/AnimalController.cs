@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using WonderlandChip.WebAPI.ApiModels.Animal;
+using WonderlandChip.Database.DTO.Animal;
+using WonderlandChip.Database.Repositories.Interfaces;
+using WonderlandChip.WebAPI.Services;
 
 namespace WonderlandChip.WebAPI.Controllers
 {
@@ -9,37 +11,35 @@ namespace WonderlandChip.WebAPI.Controllers
     [ApiController]
     public class AnimalController : ControllerBase
     {
+        private readonly IAnimalRepository _animalRepository;
+        private readonly AuthenticationService _authenticationService;
+        public AnimalController
+            (IAnimalRepository animalRepository, 
+            AuthenticationService authenticationService)
+        {
+            _animalRepository = animalRepository;
+            _authenticationService = authenticationService;
+
+        }
         [HttpGet("{animalId}")]
         public async Task<IActionResult> GetAnimalAsync(long animalId)
         {
-            if (/*Unauthorized*/false)
+            if (!string.IsNullOrWhiteSpace(Request.Headers.Authorization) &&
+                !await _authenticationService.TryAuthenticate(Request.Headers.Authorization))
                 return Unauthorized();
             if (animalId <= 0)
                 return BadRequest();
-            if (/*id was not found*/animalId > 10000)
+            AnimalGetDTO animal = await _animalRepository.GetAnimalById(animalId);
+            if (animal is null)
                 return NotFound();
-            return Ok(new AnimalGetDTO
-            {
-                Id = animalId,
-                AnimalTypes = new long[] { 1, 2, 3 },
-                Weight = 1,
-                Length = 2,
-                Height = 3,
-                Gender = "FEMALE",
-                LifeStatus = "ALIVE",
-                ChippingDateTime = DateTime.Now,
-                ChipperId = 1,
-                ChippingLocationId = 1,
-                VisitedLocations = new long[] { 1, 2, 3 },
-                DeathDateTime = null
-            });
+            return Ok(animal);
         }
         [HttpGet("search")]
         public async Task<IActionResult> SearchAnimalAsync([FromQuery] AnimalSearchDTO request)
         {
-            if (/*Unauthorized*/false)
+            if (!string.IsNullOrWhiteSpace(Request.Headers.Authorization) &&
+                !await _authenticationService.TryAuthenticate(Request.Headers.Authorization))
                 return Unauthorized();
-            //TODO sort by id asc 0,1,2
             if (request is not null &&
                 (request.From < 0 || request.Size <= 0 ||
                 request.ChipperId is not null && request.ChipperId >= 0 ||
@@ -48,24 +48,8 @@ namespace WonderlandChip.WebAPI.Controllers
                 request.Gender is not null &&
                 request.Gender != "MALE" && request.Gender != "FEMALE" && request.Gender != "OTHER"))
                 return BadRequest();
-            AnimalGetDTO response = new AnimalGetDTO()
-            {
-                Id = 1,
-                AnimalTypes = new long[] { 1, 2, 3 },
-                Weight = 23,
-                Length = 24,
-                Height = 25,
-                ChippingDateTime = DateTime.Now,
-                VisitedLocations = new long[] { 1, 2, 3 }
-            };
-            if (request is not null)
-            {
-                response.Gender = request?.Gender ?? "MALE";
-                response.LifeStatus = request?.LifeStatus ?? "ALIVE";
-                response.ChipperId = request?.ChipperId ?? 1;
-                response.ChippingLocationId = request?.ChippingLocationId ?? 1;
-            }
-            return Ok(new AnimalGetDTO[] { response });
+            List<AnimalGetDTO> animals = await _animalRepository.SearchAnimal(request);
+            return Ok(animals);
         }
     }
 }

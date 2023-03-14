@@ -1,0 +1,43 @@
+version: '3.4'
+
+services:
+  
+  database:
+    container_name: database
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    volumes:
+      - /var/lib/mssql/data/
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Password1
+  webapi:
+    container_name: webapi
+    image: ${DOCKER_REGISTRY-}wonderlandchipwebapi
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - MSSQL_SERVER=database
+      - MSSQL_NAME=animal-chipization
+      - MSSQL_PORT=1433
+      - MSSQL_USER=SA
+      - MSSQL_PASSWORD=Password1
+    build:
+      context: .
+      dockerfile: WonderlandChip.WebAPI/Dockerfile
+
+  tests:
+    container_name: tests
+    image: mrexpen/planet_olymp_phase1
+    pull_policy: always
+    ports:
+      - "8090:8080"
+    depends_on:
+      - webapi
+    environment:
+      SERVER_URL: http://webapi:8080
+      STAGE: 1

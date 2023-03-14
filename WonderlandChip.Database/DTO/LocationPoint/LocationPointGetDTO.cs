@@ -1,4 +1,4 @@
-﻿namespace WonderlandChip.WebAPI.ApiModels.LocationPoint
+﻿namespace WonderlandChip.Database.DTO.LocationPoint
 {
     public class LocationPointGetDTO
     {

@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using WonderlandChip.WebAPI.ApiModels.AnimalType;
+using WonderlandChip.Database.DTO.AnimalType;
+using WonderlandChip.Database.Repositories.Interfaces;
+using WonderlandChip.WebAPI.Services;
 
 namespace WonderlandChip.WebAPI.Controllers
 {
@@ -8,20 +10,28 @@ namespace WonderlandChip.WebAPI.Controllers
     [ApiController]
     public class AnimalTypeController : ControllerBase
     {
+        private readonly IAnimalTypeRepository _animalTypeRepository;
+
+        private readonly AuthenticationService _authenticationService;
+        public AnimalTypeController
+            (IAnimalTypeRepository animalTypeRepository, 
+            AuthenticationService authenticationService)
+        {
+            _animalTypeRepository = animalTypeRepository;
+            _authenticationService = authenticationService;
+        }
         [HttpGet("{typeId}")]
         public async Task<IActionResult> GetAnimalTypeIdAsync(long typeId)
         {
-            if (/*Unauthorized*/false)
+            if (!string.IsNullOrWhiteSpace(Request.Headers.Authorization) &&
+                !await _authenticationService.TryAuthenticate(Request.Headers.Authorization))
                 return Unauthorized();
             if (typeId <= 0)
                 return BadRequest();
-            if (/*Not found*/typeId>10000)
+            AnimalTypeGetDTO animalType = await _animalTypeRepository.GetAnimalTypeById(typeId);
+            if (animalType is null)
                 return NotFound();
-            return Ok(new AnimalTypeGetDTO()
-            {
-                Id = typeId,
-                Type = "There should be a type"
-            });
+            return Ok(animalType);
         }
     }
 }

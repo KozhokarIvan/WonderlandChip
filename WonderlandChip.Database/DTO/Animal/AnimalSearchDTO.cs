@@ -1,4 +1,6 @@
-﻿namespace WonderlandChip.WebAPI.ApiModels.Animal
+﻿using System;
+
+namespace WonderlandChip.Database.DTO.Animal
 {
     public class AnimalSearchDTO
     {
