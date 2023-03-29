@@ -11,10 +11,10 @@ namespace WonderlandChip.Database.Models
         public float Height { get; set; }
         public string Gender { get; set; } = null!;
         public string LifeStatus { get; set; } = null!;
-        public DateTime ChippingDateTime { get; set; }
+        public DateTimeOffset ChippingDateTime { get; set; }
         public int ChipperId { get; set; }
         public long ChippingLocationId { get; set; }
-        public DateTime? DeathDateTime { get; set; }
+        public DateTimeOffset? DeathDateTime { get; set; }
         public Account Chipper { get; set; } = null!;
         public LocationPoint ChippingLocation { get; set; } = null!;
         public List<AnimalType>? AnimalTypes { get; set; }

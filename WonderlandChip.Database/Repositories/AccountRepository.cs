@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using WonderlandChip.Database.CustomExceptions;
 using WonderlandChip.Database.DbContexts;
 using WonderlandChip.Database.DTO.Account;
 using WonderlandChip.Database.DTO.Authentication;
@@ -19,12 +19,26 @@ namespace WonderlandChip.Database.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task<int?> DeleteAccount(int? accountId)
+        {
+            Account? accountToDelete = await _dbContext.Accounts.FindAsync(accountId);
+            if (accountToDelete is null) return null;
+            await _dbContext
+                .Entry(accountToDelete)
+                .Collection(a => a.Animals)
+                .LoadAsync();
+            if (accountToDelete.Animals?.Count > 0) throw new AccountHasAnimalsException();
+            _dbContext.Accounts.Remove(accountToDelete);
+            await _dbContext.SaveChangesAsync();
+            return accountToDelete?.Id;
+        }
+
         public async Task<bool> DoesEmailExist(string email)
         {
             return await _dbContext.Accounts.AnyAsync(a => a.Email == email);
         }
 
-        public async Task<AccountGetDTO> GetAccountById(int id)
+        public async Task<AccountGetDTO> GetAccountById(int? id)
         {
             Account foundUser = await _dbContext.Accounts.FindAsync(id);
             if (foundUser == null) return null;
@@ -38,7 +52,7 @@ namespace WonderlandChip.Database.Repositories
             return returnAccount;
         }
 
-        public async Task<RegisterGetDTO> RegisterAccount(RegisterPostDTO credentials)
+        public async Task<RegisterGetDTO> RegisterAccount(RegisterAccountPostDTO credentials)
         {
             Account user = new Account()
             {
@@ -48,7 +62,14 @@ namespace WonderlandChip.Database.Repositories
                 Password = credentials.Password
             };
             await _dbContext.Accounts.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                throw;
+            }
             RegisterGetDTO returnRegister = new RegisterGetDTO()
             {
                 Id = user.Id,
@@ -80,14 +101,39 @@ namespace WonderlandChip.Database.Repositories
             return returnUsers;
         }
 
-        public async Task<bool> TryAuthenticate(AuthorizeDTO credentials)
+        public async Task<int?> TryAuthenticate(AuthorizeDTO credentials)
         {
-            Account user = await _dbContext.Accounts
+            Account? user = await _dbContext.Accounts
                 .Where(u => u.Email == credentials.Email && u.Password == credentials.Password)
                 .SingleOrDefaultAsync();
-            if (user is null)
-                return false;
-            return true;
+            return user?.Id;
+        }
+
+        public async Task<AccountGetDTO> UpdateAccount(AccountUpdateDTO user)
+        {
+            bool doesEmailExist = await _dbContext.Accounts.AnyAsync(a => a.Email == user.Email && a.Id != user.Id);
+            if (doesEmailExist) throw new EmailAlreadyExistsException();
+            Account? accountToUpdate = await _dbContext.Accounts.FindAsync(user.Id);
+            if (accountToUpdate == null) return null;
+            accountToUpdate!.Email = user.Email;
+            accountToUpdate!.Password = user.Password;
+            accountToUpdate!.FirstName = user.FirstName;
+            accountToUpdate!.LastName = user.LastName;
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                throw;
+            }
+            return new AccountGetDTO
+            {
+                Id = accountToUpdate.Id,
+                Email = user.Email,
+                FirstName = accountToUpdate.FirstName,
+                LastName = accountToUpdate.LastName
+            };
         }
     }
 }

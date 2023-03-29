@@ -7,10 +7,12 @@ namespace WonderlandChip.Database.Repositories.Interfaces
 {
     public interface IAccountRepository
     {
-        public Task<AccountGetDTO> GetAccountById(int id);
-        public Task<List<AccountGetDTO>> SearchAccounts(AccountSearchDTO user);
-        public Task<RegisterGetDTO> RegisterAccount(RegisterPostDTO user);
-        public Task<bool> TryAuthenticate(AuthorizeDTO credentials);
+        public Task<AccountGetDTO?> GetAccountById(int? id);
+        public Task<List<AccountGetDTO>?> SearchAccounts(AccountSearchDTO user);
+        public Task<RegisterGetDTO?> RegisterAccount(RegisterAccountPostDTO user);
+        public Task<AccountGetDTO?> UpdateAccount(AccountUpdateDTO user);
+        public Task<int?> DeleteAccount(int? accountId);
+        public Task<int?> TryAuthenticate(AuthorizeDTO credentials);
         public Task<bool> DoesEmailExist(string email);
     }
 }

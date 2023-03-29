@@ -1,6 +1,6 @@
 ﻿namespace WonderlandChip.Database.DTO.Authentication
 {
-    public class RegisterPostDTO
+    public class RegisterAccountPostDTO
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }

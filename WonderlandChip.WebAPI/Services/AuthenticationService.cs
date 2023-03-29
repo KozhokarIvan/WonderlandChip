@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using System.Text.Unicode;
 using System.Threading.Tasks;
 using WonderlandChip.Database.DTO.Account;
 using WonderlandChip.Database.Repositories.Interfaces;
@@ -14,7 +13,7 @@ namespace WonderlandChip.WebAPI.Services
         {
             _accountRepository = accountRepository;
         }
-        public async Task<bool> TryAuthenticate(string authenticationHeader)
+        public async Task<int?> GetAuthenticatedUserId(string authenticationHeader)
         {
             string[] credentials;
             string encodedUsernamePassword = authenticationHeader

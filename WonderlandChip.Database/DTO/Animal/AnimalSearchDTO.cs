@@ -4,8 +4,8 @@ namespace WonderlandChip.Database.DTO.Animal
 {
     public class AnimalSearchDTO
     {
-        public DateTime? StartDateTime { get; set; }
-        public DateTime? EndDateTime { get; set; }
+        public DateTimeOffset? StartDateTime { get; set; }
+        public DateTimeOffset? EndDateTime { get; set; }
         public int? ChipperId { get; set; }
         public long? ChippingLocationId { get; set; }
         public string? LifeStatus { get; set; }

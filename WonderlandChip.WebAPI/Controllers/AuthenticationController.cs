@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WonderlandChip.Database.DTO.Authentication;
 using WonderlandChip.Database.Repositories.Interfaces;
@@ -16,20 +17,21 @@ namespace WonderlandChip.WebAPI.Controllers
             _accountRepository = accountRepository;
         }
         [HttpPost]
-        public async Task<IActionResult> Index(RegisterPostDTO request)
+        public async Task<IActionResult> Index(RegisterAccountPostDTO credentials)
         {
-            if (request is null ||
-                string.IsNullOrWhiteSpace(request.FirstName) ||
-                string.IsNullOrWhiteSpace(request.LastName) ||
-                string.IsNullOrWhiteSpace(request.Email) ||
-                string.IsNullOrWhiteSpace(request.Password) ||
-                !new EmailAddressAttribute().IsValid(request.Email))
+            if (credentials is null ||
+                string.IsNullOrWhiteSpace(credentials.FirstName) ||
+                string.IsNullOrWhiteSpace(credentials.LastName) ||
+                string.IsNullOrWhiteSpace(credentials.Email) ||
+                string.IsNullOrWhiteSpace(credentials.Password) ||
+                !new EmailAddressAttribute().IsValid(credentials.Email))
                 return BadRequest();
             if (!string.IsNullOrWhiteSpace(Request.Headers.Authorization))
-                return Forbid();
-            if (await _accountRepository.DoesEmailExist(request.Email))
+                return StatusCode(StatusCodes.Status403Forbidden);
+            bool doesEmailExist = await _accountRepository.DoesEmailExist(credentials.Email);
+            if (doesEmailExist)
                 return Conflict();
-            RegisterGetDTO user = await _accountRepository.RegisterAccount(request);
+            RegisterGetDTO user = await _accountRepository.RegisterAccount(credentials);
             return Created("/", user);
         }
     }

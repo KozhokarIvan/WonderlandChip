@@ -1,6 +1,6 @@
 ﻿namespace WonderlandChip.Database.DTO.LocationPoint
 {
-    public class LocationPointGetDTO
+    public class LocationPointWithIdDTO
     {
         public long Id { get; set; }
         public double Latitude { get; set; }

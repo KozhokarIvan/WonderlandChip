@@ -1,12 +1,9 @@
-version: '3.4'
+version: '3.9'
 
 services:
-  
   database:
     container_name: database
     image: mcr.microsoft.com/mssql/server:2022-latest
-    volumes:
-      - /var/lib/mssql/data/
     ports:
       - "1433:1433"
     environment:
@@ -15,6 +12,12 @@ services:
   webapi:
     container_name: webapi
     image: ${DOCKER_REGISTRY-}wonderlandchipwebapi
+    healthcheck:
+      test: ["CMD", "curl --fail http://webapi:8080/health"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+      start_period: 10s
     ports:
       - "8080:8080"
     depends_on:
@@ -34,10 +37,11 @@ services:
     container_name: tests
     image: mrexpen/planet_olymp_phase1
     pull_policy: always
+    restart: always
     ports:
       - "8090:8080"
     depends_on:
       - webapi
     environment:
       SERVER_URL: http://webapi:8080
-      STAGE: 1
+      STAGE: ALL

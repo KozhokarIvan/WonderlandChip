@@ -1,7 +1,5 @@
-using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WonderlandChip.Database.DbContexts;
@@ -34,20 +32,21 @@ namespace WonderlandChip.WebAPI
 
             builder.Services.AddScoped<IAnimalTypeRepository, AnimalTypeRepository>();
 
-            builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+            builder.Services.AddScoped<ILocationPointRepository, LocationPointRepository>();
 
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
-            builder.Services.AddScoped<IVisitedLocationRepository, VisitedLocationRepository>();
+            builder.Services.AddScoped<IAnimalVisitedLocationRepository, AnimalVisitedLocationRepository>();
 
             builder.Services.AddScoped<AuthenticationService>();
 
             builder.Services.AddControllers();
-
+            builder.Services.AddHealthChecks()
+                .AddCheck<DatabaseHealthCheck>(nameof(DatabaseHealthCheck));
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
+            builder.Services.AddHealthChecks();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -57,14 +56,13 @@ namespace WonderlandChip.WebAPI
                 app.UseSwaggerUI();
             }
             app.MapControllers();
+            app.MapHealthChecks("/health");
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<ChipizationDbContext>();
-                if (context.Database.EnsureCreated())
-                {
-                    context.Database.Migrate();
-                }
+                context.Database.EnsureCreated();
+                context.Database.Migrate();
             }
             app.Run();
         }
