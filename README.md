@@ -32,3 +32,8 @@
  ### Animal Visited Location:
  - Просмотр информации о перемещении животного
  - Создание/изменение/удаление точки локации у животного
+## Структура БД
+ ![Структура БД](readmeassets/dbstructure.png)
+## Тесты
+ ![Тесты](readmeassets/testsoverview.png)
+ ![Количество тестов](readmeassets/testsinfo.png)
