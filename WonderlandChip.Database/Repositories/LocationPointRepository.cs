@@ -40,9 +40,9 @@ namespace WonderlandChip.Database.Repositories
         }
 
 
-        public async Task<LocationPointWithIdDTO> GetLocationById(long? id)
+        public async Task<LocationPointWithIdDTO?> GetLocationById(long? id)
         {
-            LocationPoint dbLocation = await _dbContext.LocationPoints.FindAsync(id);
+            LocationPoint? dbLocation = await _dbContext.LocationPoints.FindAsync(id);
             if (dbLocation is null) return null;
             LocationPointWithIdDTO returnLocation = new LocationPointWithIdDTO()
             {
@@ -53,7 +53,7 @@ namespace WonderlandChip.Database.Repositories
             return returnLocation;
         }
 
-        public async Task<LocationPointWithIdDTO> UpdateLocation(LocationPointWithIdDTO location)
+        public async Task<LocationPointWithIdDTO?> UpdateLocation(LocationPointWithIdDTO location)
         {
             bool doesPointExist = await _dbContext.LocationPoints.AnyAsync(l =>
             l.Latitude == location.Latitude && l.Longitude == location.Longitude);
@@ -73,7 +73,7 @@ namespace WonderlandChip.Database.Repositories
         }
         public async Task<long?> DeleteLocation(long? locationId)
         {
-            LocationPoint dbLocation = await _dbContext.LocationPoints.FindAsync(locationId);
+            LocationPoint? dbLocation = await _dbContext.LocationPoints.FindAsync(locationId);
             if (dbLocation is null) return null;
             await _dbContext
                 .Entry(dbLocation)

@@ -32,7 +32,7 @@ namespace WonderlandChip.WebAPI.Controllers
             }
             if (pointId is null || pointId <= 0)
                 return BadRequest();
-            LocationPointWithIdDTO location = await _locationRepository.GetLocationById(pointId);
+            LocationPointWithIdDTO? location = await _locationRepository.GetLocationById(pointId);
             if (location is null)
                 return NotFound();
             return Ok(location);
@@ -75,7 +75,7 @@ namespace WonderlandChip.WebAPI.Controllers
                 return BadRequest();
             try
             {
-                LocationPointWithIdDTO locationPoint = await _locationRepository
+                LocationPointWithIdDTO? locationPoint = await _locationRepository
                     .UpdateLocation(new LocationPointWithIdDTO()
                     {
                         Id = pointId ?? throw new NullReferenceException(),

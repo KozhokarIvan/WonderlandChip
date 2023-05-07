@@ -6,7 +6,7 @@ namespace WonderlandChip.Database.Repositories.Interfaces
 {
     public interface IAnimalRepository
     {
-        public Task<AnimalGetDTO?> AddAnimal(AnimalCreateDTO animal);
+        public Task<AnimalGetDTO?> CreateAnimal(AnimalCreateDTO animal);
         public Task<AnimalGetDTO?> GetAnimalById(long? id);
         public Task<List<AnimalGetDTO>?> SearchAnimals(AnimalSearchDTO animal);
         public Task<AnimalGetDTO?> UpdateAnimal(AnimalUpdateDTO animal);

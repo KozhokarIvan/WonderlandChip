@@ -19,9 +19,9 @@ namespace WonderlandChip.Database.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<AnimalGetDTO> GetAnimalById(long? id)
+        public async Task<AnimalGetDTO?> GetAnimalById(long? id)
         {
-            Animal foundAnimal = await _dbContext.Animals.FindAsync(id);
+            Animal? foundAnimal = await _dbContext.Animals.FindAsync(id);
             if (foundAnimal is null) return null;
             var entry = _dbContext.Entry(foundAnimal);
             await entry.Collection(e => e.AnimalTypes).LoadAsync();
@@ -43,7 +43,7 @@ namespace WonderlandChip.Database.Repositories
             };
             return returnAnimal;
         }
-        public async Task<List<AnimalGetDTO>> SearchAnimals(AnimalSearchDTO animal)
+        public async Task<List<AnimalGetDTO>?> SearchAnimals(AnimalSearchDTO animal)
         {
             List<Animal> foundAnimals = await _dbContext.Animals
                 .Where(a =>
@@ -63,7 +63,7 @@ namespace WonderlandChip.Database.Repositories
             List<AnimalGetDTO> returnAnimals = foundAnimals.Select(a => new AnimalGetDTO()
             {
                 Id = a.Id,
-                AnimalTypes = a.AnimalTypes.Select(at => at.Id).ToArray(),
+                AnimalTypes = a.AnimalTypes?.Select(at => at.Id).ToArray(),
                 Weight = a.Weight,
                 Length = a.Length,
                 Height = a.Height,
@@ -72,17 +72,16 @@ namespace WonderlandChip.Database.Repositories
                 ChippingDateTime = a.ChippingDateTime,
                 ChipperId = a.ChipperId,
                 ChippingLocationId = a.ChippingLocationId,
-                VisitedLocations = a.VisitedLocations.Select(vl => vl.Id).ToArray(),
+                VisitedLocations = a.VisitedLocations?.Select(vl => vl.Id).ToArray(),
                 DeathDateTime = a.DeathDateTime
             }).ToList();
             return returnAnimals;
         }
-        public async Task<AnimalGetDTO> AddAnimal(AnimalCreateDTO animal)
+        public async Task<AnimalGetDTO?> CreateAnimal(AnimalCreateDTO animal)
         {
             bool isChipperFound = await _dbContext.Accounts
                 .AnyAsync(a => a.Id == animal.ChipperId);
             if (!isChipperFound) return null;
-
             bool doesChippingLocationExist = await _dbContext.LocationPoints
                 .AnyAsync(lp => lp.Id == animal.ChippingLocationId);
             if (!doesChippingLocationExist) return null;
@@ -126,7 +125,7 @@ namespace WonderlandChip.Database.Repositories
             };
         }
 
-        public async Task<AnimalGetDTO> UpdateAnimal(AnimalUpdateDTO animal)
+        public async Task<AnimalGetDTO?> UpdateAnimal(AnimalUpdateDTO animal)
         {
             bool isChipperFound = await _dbContext.Accounts
                 .AnyAsync(a => a.Id == animal.ChipperId);
@@ -155,7 +154,7 @@ namespace WonderlandChip.Database.Repositories
             dbAnimal.LifeStatus = animal.LifeStatus ?? throw new NullReferenceException();
             if (dbAnimal.LifeStatus == "DEAD")
                 dbAnimal.DeathDateTime = DateTimeOffset.UtcNow;
-            dbAnimal.Gender = animal.Gender;
+            dbAnimal.Gender = animal.Gender!;
             dbAnimal.ChipperId = animal.ChipperId ?? throw new NullReferenceException();
             dbAnimal.ChippingLocationId = animal.ChippingLocationId ?? throw new NullReferenceException();
             await _dbContext.SaveChangesAsync();
@@ -179,7 +178,7 @@ namespace WonderlandChip.Database.Repositories
         {
             Animal? dbAnimal = await _dbContext.Animals.FindAsync(id);
 
-            if (dbAnimal == null) return null;
+            if (dbAnimal is null) return null;
             await _dbContext
                 .Entry(dbAnimal)
                 .Collection(a => a.VisitedLocations)
@@ -191,7 +190,7 @@ namespace WonderlandChip.Database.Repositories
             return dbAnimal.Id;
         }
 
-        public async Task<AnimalGetDTO> AddAnimalType(AnimalCreateTypeDTO addTypeInfo)
+        public async Task<AnimalGetDTO?> AddAnimalType(AnimalCreateTypeDTO addTypeInfo)
         {
             AnimalType? dbAnimalType = await _dbContext.AnimalTypes
                 .FindAsync(addTypeInfo.TypeId);
@@ -208,7 +207,7 @@ namespace WonderlandChip.Database.Repositories
                 .Entry(dbAnimal)
                 .Collection(a => a.VisitedLocations)
                 .LoadAsync();
-            if (dbAnimal.AnimalTypes.Contains(dbAnimalType)) throw new AnimalAlreadyHasTypeException();
+            if (dbAnimal.AnimalTypes!.Contains(dbAnimalType)) throw new AnimalAlreadyHasTypeException();
             dbAnimal.AnimalTypes.Add(dbAnimalType);
             await _dbContext.SaveChangesAsync();
             return new AnimalGetDTO()
@@ -228,7 +227,7 @@ namespace WonderlandChip.Database.Repositories
             };
         }
 
-        public async Task<AnimalGetDTO> UpdateAnimalType(AnimalUpdateTypeDTO updateTypeInfo)
+        public async Task<AnimalGetDTO?> UpdateAnimalType(AnimalUpdateTypeDTO updateTypeInfo)
         {
             AnimalType? oldType = await _dbContext.AnimalTypes.FindAsync(updateTypeInfo.OldTypeId);
             if (oldType is null) return null;
@@ -261,11 +260,11 @@ namespace WonderlandChip.Database.Repositories
                 ChippingDateTime = dbAnimal.ChippingDateTime,
                 ChipperId = dbAnimal.ChipperId,
                 ChippingLocationId = dbAnimal.ChippingLocationId,
-                VisitedLocations = dbAnimal.VisitedLocations.Select(at => at.Id).ToArray(),
+                VisitedLocations = dbAnimal.VisitedLocations?.Select(at => at.Id).ToArray(),
                 DeathDateTime = dbAnimal.DeathDateTime
             };
         }
-        public async Task<AnimalGetDTO> DeleteAnimalType(AnimalDeleteTypeDTO deleteTypeInfo)
+        public async Task<AnimalGetDTO?> DeleteAnimalType(AnimalDeleteTypeDTO deleteTypeInfo)
         {
             AnimalType? dbAnimalType = await _dbContext.AnimalTypes
                 .FindAsync(deleteTypeInfo.TypeId);
@@ -276,7 +275,7 @@ namespace WonderlandChip.Database.Repositories
                 .Entry(dbAnimal)
                 .Collection(a => a.AnimalTypes)
                 .LoadAsync();
-            if (!dbAnimal.AnimalTypes.Contains(dbAnimalType)) return null;
+            if (!dbAnimal.AnimalTypes!.Contains(dbAnimalType)) return null;
             if (dbAnimal.AnimalTypes.Count <= 1) throw new AnimalWontHaveTypesException();
             dbAnimal.AnimalTypes.Remove(dbAnimalType);
             await _dbContext.SaveChangesAsync();

@@ -9,10 +9,10 @@ namespace WonderlandChip.Database.Repositories.Interfaces
     {
         public Task<AccountGetDTO?> GetAccountById(int? id);
         public Task<List<AccountGetDTO>?> SearchAccounts(AccountSearchDTO user);
-        public Task<RegisterGetDTO?> RegisterAccount(RegisterAccountPostDTO user);
+        public Task<RegisterGetDTO> RegisterAccount(RegisterAccountPostDTO user);
         public Task<AccountGetDTO?> UpdateAccount(AccountUpdateDTO user);
         public Task<int?> DeleteAccount(int? accountId);
-        public Task<int?> TryAuthenticate(AuthorizeDTO credentials);
+        public Task<int?> TryAuthenticateAndGetUserId(AuthorizeDTO credentials);
         public Task<bool> DoesEmailExist(string email);
     }
 }

@@ -33,7 +33,7 @@ namespace WonderlandChip.WebAPI.Controllers
             }
             if (animalId is null || animalId <= 0)
                 return BadRequest();
-            AnimalGetDTO animal = await _animalRepository.GetAnimalById(animalId);
+            AnimalGetDTO? animal = await _animalRepository.GetAnimalById(animalId);
             if (animal is null)
                 return NotFound();
             return Ok(animal);
@@ -53,7 +53,7 @@ namespace WonderlandChip.WebAPI.Controllers
                 request.Gender is not null &&
                 request.Gender != "MALE" && request.Gender != "FEMALE" && request.Gender != "OTHER")
                 return BadRequest();
-            List<AnimalGetDTO> animals = await _animalRepository.SearchAnimals(request);
+            List<AnimalGetDTO>? animals = await _animalRepository.SearchAnimals(request);
             return Ok(animals);
         }
         [HttpPost]
@@ -77,7 +77,7 @@ namespace WonderlandChip.WebAPI.Controllers
                 return BadRequest();
             try
             {
-                AnimalGetDTO animal = await _animalRepository.AddAnimal(animalCreate);
+                AnimalGetDTO? animal = await _animalRepository.CreateAnimal(animalCreate);
                 if (animal == null) return NotFound();
                 return Created("/", animal);
             }
@@ -107,8 +107,8 @@ namespace WonderlandChip.WebAPI.Controllers
                 return BadRequest();
             try
             {
-                animalUpdate.AnimalId = animalId;
-                AnimalGetDTO animal = await _animalRepository
+                animalUpdate!.AnimalId = animalId;
+                AnimalGetDTO? animal = await _animalRepository
                     .UpdateAnimal(animalUpdate);
                 if (animal is null) return NotFound();
                 return Ok(animal);
@@ -160,7 +160,7 @@ namespace WonderlandChip.WebAPI.Controllers
                 return BadRequest();
             try
             {
-                AnimalGetDTO animal = await _animalRepository.AddAnimalType(
+                AnimalGetDTO? animal = await _animalRepository.AddAnimalType(
                     new AnimalCreateTypeDTO() { AnimalId = animalId, TypeId = typeId });
                 if (animal is null) return NotFound();
                 return Created("/", animal);
@@ -185,8 +185,8 @@ namespace WonderlandChip.WebAPI.Controllers
                 return BadRequest();
             try
             {
-                updateType.AnimalId = animalId;
-                AnimalGetDTO animal = await _animalRepository.UpdateAnimalType(updateType);
+                updateType!.AnimalId = animalId;
+                AnimalGetDTO? animal = await _animalRepository.UpdateAnimalType(updateType);
                 if (animal is null) return NotFound();
                 return Ok(animal);
             }

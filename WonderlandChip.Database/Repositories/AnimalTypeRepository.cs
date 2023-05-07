@@ -16,7 +16,7 @@ namespace WonderlandChip.Database.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<AnimalTypeDTO> CreateAnimalType(string? type)
+        public async Task<AnimalTypeDTO> CreateAnimalType(string type)
         {
             bool doesTypeExist = await _dbContext.AnimalTypes.AnyAsync(at => at.Name == type);
             if (doesTypeExist)
@@ -24,10 +24,10 @@ namespace WonderlandChip.Database.Repositories
             AnimalType animalType = new AnimalType() { Name = type };
             _dbContext.AnimalTypes.Add(animalType);
             await _dbContext.SaveChangesAsync();
-            return new AnimalTypeDTO() { Id = animalType.Id, Type = animalType.Name };
+            return new AnimalTypeDTO() { Id = animalType.Id, Type = animalType.Name! };
         }
 
-        public async Task<AnimalTypeDTO> GetAnimalTypeById(long? id)
+        public async Task<AnimalTypeDTO?> GetAnimalTypeById(long id)
         {
             AnimalType? dbAnimalType = await _dbContext.AnimalTypes.FindAsync(id);
             if (dbAnimalType == null) return null;
@@ -39,10 +39,10 @@ namespace WonderlandChip.Database.Repositories
             return returnAnimalType;
         }
 
-        public async Task<AnimalTypeDTO> UpdateAnimalTypeById(AnimalTypeDTO? animalTypeInfo)
+        public async Task<AnimalTypeDTO?> UpdateAnimalTypeById(AnimalTypeDTO? animalTypeInfo)
         {
             bool doesTypeExist = await _dbContext.AnimalTypes
-                .AnyAsync(at => at.Name == animalTypeInfo!.Type);
+                .AnyAsync(at => at.Name == animalTypeInfo.Type);
             if (doesTypeExist)
                 throw new AnimalTypeAlreadyExistsException();
             AnimalType? dbAnimalType = await _dbContext.AnimalTypes.FindAsync(animalTypeInfo!.Id);
@@ -52,7 +52,7 @@ namespace WonderlandChip.Database.Repositories
             return new AnimalTypeDTO() { Id = dbAnimalType.Id, Type = dbAnimalType.Name };
         }
 
-        public async Task<long?> DeleteAnimalTypeById(long? id)
+        public async Task<long?> DeleteAnimalTypeById(long id)
         {
             AnimalType? dbAnimalType = await _dbContext.AnimalTypes.FindAsync(id);
             if (dbAnimalType is null) return null;

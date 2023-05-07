@@ -37,7 +37,7 @@ namespace WonderlandChip.WebAPI.Controllers
                 (request.From > 0 || request.Size <= 0))
                 return BadRequest();
             request.AnimalId = (long)animalId;
-            List<AnimalVisitedLocationGetDTO> visitedLocations;
+            List<AnimalVisitedLocationGetDTO>? visitedLocations;
             try
             {
                 visitedLocations =
@@ -66,7 +66,7 @@ namespace WonderlandChip.WebAPI.Controllers
                 return BadRequest();
             try
             {
-                AnimalVisitedLocationGetDTO animalVisitedLocation =
+                AnimalVisitedLocationGetDTO? animalVisitedLocation =
                     await _animalVisitedLocationRepository
                     .AddVisitedLocation(new AnimalVisitedLocationAddDTO() { AnimalId = animalId, PointId = pointId });
                 if (animalVisitedLocation is null) return NotFound();
@@ -107,7 +107,7 @@ namespace WonderlandChip.WebAPI.Controllers
             try
             {
                 locationUpdate.AnimalId = animalId ?? throw new NullReferenceException();
-                AnimalVisitedLocationGetDTO location = await _animalVisitedLocationRepository
+                AnimalVisitedLocationGetDTO? location = await _animalVisitedLocationRepository
                     .UpdateVisitedLocation(locationUpdate);
                 if (location is null) return NotFound();
                 return Ok(location);

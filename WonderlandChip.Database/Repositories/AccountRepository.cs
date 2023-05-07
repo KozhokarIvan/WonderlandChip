@@ -38,9 +38,9 @@ namespace WonderlandChip.Database.Repositories
             return await _dbContext.Accounts.AnyAsync(a => a.Email == email);
         }
 
-        public async Task<AccountGetDTO> GetAccountById(int? id)
+        public async Task<AccountGetDTO?> GetAccountById(int? id)
         {
-            Account foundUser = await _dbContext.Accounts.FindAsync(id);
+            Account? foundUser = await _dbContext.Accounts.FindAsync(id);
             if (foundUser == null) return null;
             AccountGetDTO returnAccount = new AccountGetDTO()
             {
@@ -80,7 +80,7 @@ namespace WonderlandChip.Database.Repositories
             return returnRegister;
         }
 
-        public async Task<List<AccountGetDTO>> SearchAccounts(AccountSearchDTO user)
+        public async Task<List<AccountGetDTO>?> SearchAccounts(AccountSearchDTO user)
         {
             List<Account> foundUsers = await _dbContext.Accounts
                 .Where(u =>
@@ -101,7 +101,7 @@ namespace WonderlandChip.Database.Repositories
             return returnUsers;
         }
 
-        public async Task<int?> TryAuthenticate(AuthorizeDTO credentials)
+        public async Task<int?> TryAuthenticateAndGetUserId(AuthorizeDTO credentials)
         {
             Account? user = await _dbContext.Accounts
                 .Where(u => u.Email == credentials.Email && u.Password == credentials.Password)
@@ -109,7 +109,7 @@ namespace WonderlandChip.Database.Repositories
             return user?.Id;
         }
 
-        public async Task<AccountGetDTO> UpdateAccount(AccountUpdateDTO user)
+        public async Task<AccountGetDTO?> UpdateAccount(AccountUpdateDTO user)
         {
             bool doesEmailExist = await _dbContext.Accounts.AnyAsync(a => a.Email == user.Email && a.Id != user.Id);
             if (doesEmailExist) throw new EmailAlreadyExistsException();

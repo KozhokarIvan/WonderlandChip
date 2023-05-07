@@ -21,7 +21,7 @@ namespace WonderlandChip.WebAPI.Services
             credentials = Encoding.UTF8
                 .GetString(Convert.FromBase64String(encodedUsernamePassword)).Split(':');
             return await _accountRepository
-                .TryAuthenticate(new AuthorizeDTO() { Email = credentials[0], Password = credentials[1] });
+                .TryAuthenticateAndGetUserId(new AuthorizeDTO() { Email = credentials[0], Password = credentials[1] });
         }
     }
 }

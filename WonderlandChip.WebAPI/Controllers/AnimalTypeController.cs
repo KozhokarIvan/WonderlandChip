@@ -32,7 +32,7 @@ namespace WonderlandChip.WebAPI.Controllers
             }
             if (typeId is null || typeId <= 0)
                 return BadRequest();
-            AnimalTypeDTO animalType = await _animalTypeRepository.GetAnimalTypeById(typeId);
+            AnimalTypeDTO? animalType = await _animalTypeRepository.GetAnimalTypeById((long)typeId);
             if (animalType is null)
                 return NotFound();
             return Ok(animalType);
@@ -69,7 +69,7 @@ namespace WonderlandChip.WebAPI.Controllers
                 return BadRequest();
             try
             {
-                AnimalTypeDTO animal = await _animalTypeRepository
+                AnimalTypeDTO? animal = await _animalTypeRepository
                     .UpdateAnimalTypeById(new AnimalTypeDTO() { Id = typeId, Type = animalTypeRequest.Type });
                 if (animal is null) return NotFound();
                 return Ok(animal);
@@ -91,7 +91,7 @@ namespace WonderlandChip.WebAPI.Controllers
                 return BadRequest();
             try
             {
-                long? deletedAnimalTypeId = await _animalTypeRepository.DeleteAnimalTypeById(typeId);
+                long? deletedAnimalTypeId = await _animalTypeRepository.DeleteAnimalTypeById((long)typeId);
                 if (deletedAnimalTypeId is null) return NotFound();
                 return Ok(deletedAnimalTypeId);
             }

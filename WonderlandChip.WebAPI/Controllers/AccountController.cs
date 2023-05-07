@@ -34,7 +34,7 @@ namespace WonderlandChip.WebAPI.Controllers
             }
             if (accountId is null || accountId <= 0)
                 return BadRequest();
-            AccountGetDTO account = await _accountRepository.GetAccountById(accountId);
+            AccountGetDTO? account = await _accountRepository.GetAccountById(accountId);
             if (account is null)
                 return NotFound();
             return Ok(account);
@@ -47,9 +47,9 @@ namespace WonderlandChip.WebAPI.Controllers
                 int? authenticatedUserId = await _authenticationService.GetAuthenticatedUserId(Request.Headers.Authorization);
                 if (authenticatedUserId is null) return Unauthorized();
             }
-            if (request is not null && (request.From < 0 || request.Size <= 0))
+            if (request is null || request is not null && (request.From < 0 || request.Size <= 0))
                 return BadRequest();
-            List<AccountGetDTO> accounts = await _accountRepository.SearchAccounts(request);
+            List<AccountGetDTO>? accounts = await _accountRepository.SearchAccounts(request!);
             if (accounts is null)
                 return NotFound();
             return Ok(accounts);

@@ -19,7 +19,7 @@ namespace WonderlandChip.Database.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<AnimalVisitedLocationGetDTO> AddVisitedLocation(AnimalVisitedLocationAddDTO addInfo)
+        public async Task<AnimalVisitedLocationGetDTO?> AddVisitedLocation(AnimalVisitedLocationAddDTO addInfo)
         {
             Animal? dbAnimal = await _dbContext.Animals.FindAsync(addInfo.AnimalId);
             if (dbAnimal is null) return null;
@@ -50,16 +50,16 @@ namespace WonderlandChip.Database.Repositories
 
         }
 
-        public async Task<AnimalVisitedLocationGetDTO> UpdateVisitedLocation(AnimalVisitedLocationUpdateDTO updateInfo)
+        public async Task<AnimalVisitedLocationGetDTO?> UpdateVisitedLocation(AnimalVisitedLocationUpdateDTO updateInfo)
         {
-            Animal dbAnimal = await _dbContext.Animals.FindAsync(updateInfo.AnimalId);
+            Animal? dbAnimal = await _dbContext.Animals.FindAsync(updateInfo.AnimalId);
             if (dbAnimal is null) return null;
             AnimalVisitedLocation? dbAnimalVisitedLocation = await _dbContext.AnimalsVisitedLocations
                 .FindAsync(updateInfo.VisitedLocationPointId);
             if (dbAnimalVisitedLocation is null) return null;
             if (dbAnimalVisitedLocation.LocationPointId == updateInfo.LocationPointId)
                 throw new AnimalLocationPointIsTheSameException();
-            LocationPoint dbLocation = await _dbContext.LocationPoints.FindAsync(updateInfo.LocationPointId);
+            LocationPoint? dbLocation = await _dbContext.LocationPoints.FindAsync(updateInfo.LocationPointId);
             if (dbLocation is null) return null;
             List<AnimalVisitedLocation> visitedLocations = await _dbContext.AnimalsVisitedLocations
                 .Where(vl => vl.AnimalId == dbAnimal.Id)
@@ -119,15 +119,15 @@ namespace WonderlandChip.Database.Repositories
             return dbAnimalVisitedLocation.Id;
         }
 
-        public async Task<List<AnimalVisitedLocationGetDTO>> SearchVisitedLocation(AnimalVisitedLocationSearchDTO visitedLocation)
+        public async Task<List<AnimalVisitedLocationGetDTO>?> SearchVisitedLocation(AnimalVisitedLocationSearchDTO visitedLocation)
         {
-            Animal dbAnimal = await _dbContext.Animals.FindAsync(visitedLocation.AnimalId);
+            Animal? dbAnimal = await _dbContext.Animals.FindAsync(visitedLocation.AnimalId);
             if (dbAnimal is null) return null;
             await _dbContext
                 .Entry(dbAnimal)
                 .Collection(a => a.VisitedLocations)
                 .LoadAsync();
-            List<AnimalVisitedLocation> foundLocations = dbAnimal.VisitedLocations
+            List<AnimalVisitedLocation>? foundLocations = dbAnimal.VisitedLocations?
                 .Where(vl =>
                 (!visitedLocation.StartDateTime.HasValue || vl.DateTimeOfVisit >= visitedLocation.StartDateTime) &&
                 (!visitedLocation.EndDateTime.HasValue || vl.DateTimeOfVisit <= visitedLocation.EndDateTime)
@@ -136,8 +136,8 @@ namespace WonderlandChip.Database.Repositories
                 .Skip(visitedLocation.From)
                 .Take(visitedLocation.Size)
                 .ToList();
-            List<AnimalVisitedLocationGetDTO> returnLocations =
-                foundLocations.Select(l => new AnimalVisitedLocationGetDTO()
+            List<AnimalVisitedLocationGetDTO>? returnLocations =
+                foundLocations?.Select(l => new AnimalVisitedLocationGetDTO()
                 {
                     Id = l.Id,
                     DateTimeOfVisitLocationPoint = l.DateTimeOfVisit,

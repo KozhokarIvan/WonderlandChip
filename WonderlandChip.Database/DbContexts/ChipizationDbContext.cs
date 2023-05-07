@@ -7,7 +7,6 @@ namespace WonderlandChip.Database.DbContexts
     {
         public DbSet<Animal> Animals { get; set; } = null!;
         public DbSet<AnimalType> AnimalTypes { get; set; } = null!;
-        public DbSet<AnimalTypeAnimal> AnimalTypesAnimals { get; set; } = null!;
         public DbSet<LocationPoint> LocationPoints { get; set; } = null!;
         public DbSet<Account> Accounts { get; set; } = null!;
         public DbSet<AnimalVisitedLocation> AnimalsVisitedLocations { get; set; } = null!;
