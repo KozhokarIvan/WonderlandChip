@@ -1,39 +1,37 @@
-# Легенда
-> Наша компания “Дрип-Чип” занимается чипированием животных в стране
-> “Вондерланд” для отслеживания их перемещения и жизненных циклов. Перемещение
-> животных на планете крайне важно, в том числе чтобы защитить их от гибели.
-> В этом году наша компания решила создать единую базу, в которой будут перенесены
-> записи прошлых лет, для проведения многолетних экспериментов, связанных с
-> миграциями животных, а также для отслеживания изменения сред обитания и ведения
-> истории.
-# Функционал системы
-## В системе должны быть следующие компоненты
+# Legend
+> Our company chips animals in a country called 'Wonderland' to track 
+> their movements and monitor their health. Tracking the movement of animals is extremely important for protecting them from extinction. 
+> This year, the company decided to create a database where previous records will be consolidated 
+> for conducting long-term experiments related to animal migration and track changes in their living environments and history
+
+# System functionality
+## The system has the following components
  - Account
  - Animal
  - Animal Type
  - Location Point
  - Animal Visited Location
-## В контроллерах должен быть доступен следующий функционал
+## Controllers should include the following features
  ### Authentication:
-- Регистрация аккаунта
+ - Account registration
  ### Account:
- - Просмотр информации об аккаунте
- - Поиск/изменение/удаление аккаунта
+ - View account info
+ - Search/Update/Delete account
  ### Animal:
- - Просмотр информации о животном
- - Поиск/создание/изменение/удаление животного
- - Создание/изменение/удаление типа животного
+ - View animal info
+ - Create/Search/Update/Delete animals
+ - Create/Update/Delete animal type
  ### Animal Type:
- - Просмотр информации о типе животного
- - Создание/изменение/удаление типа животного
+ - View animal type info
+ - Create/Update/Delete animal type
  ### Location Point:
- - Просмотр информации о точке локации
- - Создание/изменение/удаление точки локации
+ - View location point info
+ - Create/Update/Delete location point
  ### Animal Visited Location:
- - Просмотр информации о перемещении животного
- - Создание/изменение/удаление точки локации у животного
-## Структура БД
- ![Структура БД](readmeassets/dbstructure.png)
-## Тесты
- ![Тесты](readmeassets/testsoverview.png)
- ![Количество тестов](readmeassets/testsinfo.png)
+ - View information about animal movement
+ - Create/Update/Delete animal visited location
+## Database Structure
+ ![Database structure](readmeassets/dbstructure.png)
+## Tests
+ ![Tests](readmeassets/testsoverview.png)
+ ![Tests info](readmeassets/testsinfo.png)
